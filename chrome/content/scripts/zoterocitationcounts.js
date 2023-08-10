@@ -17,25 +17,6 @@ const operationNames = {
     "semanticscholar": "Semantic Scholar"
 };
 
-// function getCitationCount(item, tag) {
-//     let extra = item.getField('extra');
-//     if (!extra) {
-//         return -1;
-//     }
-//     let extras = extra.split("\n");
-//     const patt = new RegExp("^Citations \\(" + tag + "\\): (\\d+).*", "i");
-//     extras = extras.filter(ex => patt.test(ex));
-//     if (length(extras) == 0) {
-//         return -1;
-//     }
-//     let count = patt.exec(extras[1])[1]
-//     if (!count) {
-//         return -1;
-//     }
-//     count = parseInt(count);
-//     return count;
-// }
-
 function setCitationCount(item, tag, count) {
     let extra = item.getField('extra');
     if (!extra) {
@@ -52,10 +33,19 @@ function setCitationCount(item, tag, count) {
     const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
     const yyyy = today.getFullYear();
     const date = yyyy + '-' + mm + '-' + dd
-    // extras.push("Citations (" + tag + "): " + count + " [" + date + "]");
-    extras.unshift("" + count + " citations (" + tag + ") [" + date + "]");
+    extras.push("" + count + " citations (" + tag + ") [" + date + "]");
     extra = extras.join("\n");
     item.setField('extra', extra);
+
+    let rights = item.getField('rights');
+    if (!rights) {
+        rights = "";
+    }
+    while (rights.startsWith('c') && rights.length > 1 && !isNaN(Number(rights.charAt(1)))) {
+        rights = rights.replace(/^c\d+/, '').trim();
+    }
+
+    item.setField('rights', 'c' + count + ' ' + rights);
 }
 
 async function getCrossrefCount(item) {
